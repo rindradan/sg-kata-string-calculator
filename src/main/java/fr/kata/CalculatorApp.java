@@ -6,8 +6,9 @@ public class CalculatorApp {
         String[] split = numbers.split(",");
         int result = 0;
         try {
-            result += Integer.parseInt(split[0]);
-            result += Integer.parseInt(split[1]);
+            for (String s : split) {
+                result += Integer.parseInt(s);
+            }
         } catch (Exception ignored) {
         }
         return result;
