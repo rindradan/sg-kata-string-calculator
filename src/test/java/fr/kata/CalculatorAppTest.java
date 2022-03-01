@@ -32,4 +32,11 @@ public class CalculatorAppTest {
         int actual = app.add("1,2,3,4,5");
         Assertions.assertEquals(15, actual);
     }
+
+    @Test
+    void should_accept_break_separator() {
+        CalculatorApp app = new CalculatorApp();
+        int actual = app.add("1\n2");
+        Assertions.assertEquals(3, actual);
+    }
 }

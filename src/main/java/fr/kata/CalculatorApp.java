@@ -3,7 +3,7 @@ package fr.kata;
 public class CalculatorApp {
 
     public int add(String numbers) {
-        String[] split = numbers.split(",");
+        String[] split = numbers.split("[,\n]");
         int result = 0;
         try {
             for (String s : split) {
