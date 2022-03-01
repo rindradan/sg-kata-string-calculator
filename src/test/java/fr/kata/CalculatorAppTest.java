@@ -39,4 +39,11 @@ public class CalculatorAppTest {
         int actual = app.add("1\n2");
         Assertions.assertEquals(3, actual);
     }
+
+    @Test
+    void should_support_different_delimiter() {
+        CalculatorApp app = new CalculatorApp();
+        int actual = app.add("//;\n1;2");
+        Assertions.assertEquals(3, actual);
+    }
 }
