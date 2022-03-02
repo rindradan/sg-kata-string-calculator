@@ -1,6 +1,7 @@
 package fr.kata;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CalculatorApp {
@@ -9,22 +10,33 @@ public class CalculatorApp {
 
     public int add(String input) {
         try {
-            var split = split(input);
-            var numbers = Arrays.stream(split).map(Integer::parseInt).toList();
-            var negatives = numbers.stream().filter(num -> num < 0).map(Object::toString).collect(Collectors.joining(","));
-            if (!negatives.isEmpty()) { throw new IllegalArgumentException("negatives not allowed: "+ negatives); }
+            var delimiter = getDelimiter(input);
+            var inputNumbers = getInputNumbers(input);
+            var split = inputNumbers.split(delimiter);
+            var numbers = formatNumbers(split);
             return numbers.stream().reduce(0, Integer::sum);
         } catch (NumberFormatException ignored) {}
         return 0;
     }
 
-    private String[] split(String input) {
-        String delimiter = DEFAULT_DELIMITER;
-        String numbers = input;
+    private String getDelimiter(String input) {
         if (input.startsWith("//")) {
-            delimiter = input.substring(2, 3);
-            numbers = input.replaceFirst("//"+delimiter+"\n", "");
+            return input.substring(2, 3);
         }
-        return numbers.split(delimiter);
+        return DEFAULT_DELIMITER;
+    }
+
+    private String getInputNumbers(String input) {
+        if (input.startsWith("//")) {
+            return input.substring(4);
+        }
+        return input;
+    }
+
+    private List<Integer> formatNumbers(String[] numbersTab) {
+        var numbers = Arrays.stream(numbersTab).map(Integer::parseInt).toList();
+        var negatives = numbers.stream().filter(num -> num < 0).map(Object::toString).collect(Collectors.joining(","));
+        if (!negatives.isEmpty()) { throw new IllegalArgumentException("negatives not allowed: "+ negatives); }
+        return numbers;
     }
 }
