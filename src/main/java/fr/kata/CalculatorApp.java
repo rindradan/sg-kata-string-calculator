@@ -36,7 +36,10 @@ public class CalculatorApp {
         if (delimiter == null || delimiter.isEmpty()) {
             return DELIMITER_DEFAULT;
         }
-        if (Pattern.matches("\\[.*]", delimiter)) {
+        if (delimiter.startsWith("[")) {
+            if (delimiter.contains("][")) {
+                return delimiter.replaceAll("]\\[", "") + "{1,}";
+            }
             return delimiter + "{1,}";
         }
         return delimiter;

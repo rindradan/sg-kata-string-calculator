@@ -66,4 +66,18 @@ public class CalculatorAppTest {
         int actual = app.add("//[***]\n1***2***3");
         Assertions.assertEquals(6, actual);
     }
+
+    @Test
+    void should_sum_with_multiple_delimiters() {
+        CalculatorApp app = new CalculatorApp();
+        int actual = app.add("//[*][%]\n1*2%3");
+        Assertions.assertEquals(6, actual);
+    }
+
+    @Test
+    void should_sum_with_multiple_long_delimiters() {
+        CalculatorApp app = new CalculatorApp();
+        int actual = app.add("//[***][%%%%]\n1***2%%%%3");
+        Assertions.assertEquals(6, actual);
+    }
 }
