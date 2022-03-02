@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CalculatorApp {
 
-    private final static String DEFAULT_DELIMITER = "[,\n]";
+    private final static String DELIMITER_DEFAULT = "[,\n]";
     private final List<Function<List<Integer>, List<Integer>>> filters = new ArrayList<>();
 
     public CalculatorApp() {
@@ -18,27 +20,26 @@ public class CalculatorApp {
 
     public int add(String input) {
         try {
-            var delimiter = getDelimiter(input);
-            var inputNumbers = getInputNumbers(input);
-            var split = inputNumbers.split(delimiter);
-            var numbers = formatNumbers(split);
-            return numbers.stream().reduce(0, Integer::sum);
+            Matcher matcher = Pattern.compile("(//(\\[.*]|.*)\n)?([\\d\\W\n]*)").matcher(input);
+            if (matcher.matches()) {
+                var delimiter = getDelimiter(matcher.group(2));
+                var inputNumbers = matcher.group(3);
+                var split = inputNumbers.split(delimiter);
+                var numbers = formatNumbers(split);
+                return numbers.stream().reduce(0, Integer::sum);
+            }
         } catch (NumberFormatException ignored) {}
         return 0;
     }
 
-    private String getDelimiter(String input) {
-        if (input.startsWith("//")) {
-            return input.substring(2, 3);
+    private String getDelimiter(String delimiter) {
+        if (delimiter == null || delimiter.isEmpty()) {
+            return DELIMITER_DEFAULT;
         }
-        return DEFAULT_DELIMITER;
-    }
-
-    private String getInputNumbers(String input) {
-        if (input.startsWith("//")) {
-            return input.substring(4);
+        if (Pattern.matches("\\[.*]", delimiter)) {
+            return delimiter + "{1,}";
         }
-        return input;
+        return delimiter;
     }
 
     private Function<List<Integer>, List<Integer>> filterNegatives() {

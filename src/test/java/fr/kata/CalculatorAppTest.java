@@ -59,4 +59,11 @@ public class CalculatorAppTest {
         int actual = app.add("1,2,1000,1001");
         Assertions.assertEquals(1003, actual);
     }
+
+    @Test
+    void should_sum_with_long_delimiter() {
+        CalculatorApp app = new CalculatorApp();
+        int actual = app.add("//[***]\n1***2***3");
+        Assertions.assertEquals(6, actual);
+    }
 }
