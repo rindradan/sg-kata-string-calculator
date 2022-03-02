@@ -46,4 +46,10 @@ public class CalculatorAppTest {
         int actual = app.add("//;\n1;2");
         Assertions.assertEquals(3, actual);
     }
+
+    @Test
+    void should_throw_error_on_negative_number() {
+        CalculatorApp app = new CalculatorApp();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> app.add("3,2,-1"));
+    }
 }

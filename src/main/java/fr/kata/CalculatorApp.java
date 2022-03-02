@@ -1,15 +1,19 @@
 package fr.kata;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class CalculatorApp {
 
     private final static String DEFAULT_DELIMITER = "[,\n]";
 
     public int add(String input) {
-        String[] split = split(input);
         try {
-            return Arrays.stream(split).map(Integer::parseInt).reduce(0, Integer::sum);
+            var split = split(input);
+            var numbers = Arrays.stream(split).map(Integer::parseInt).toList();
+            var negatives = numbers.stream().filter(num -> num < 0).map(Object::toString).collect(Collectors.joining(","));
+            if (!negatives.isEmpty()) { throw new IllegalArgumentException("negatives not allowed: "+ negatives); }
+            return numbers.stream().reduce(0, Integer::sum);
         } catch (NumberFormatException ignored) {}
         return 0;
     }
