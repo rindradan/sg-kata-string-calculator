@@ -35,8 +35,10 @@ public class CalculatorApp {
 
     private List<Integer> formatNumbers(String[] numbersTab) {
         var numbers = Arrays.stream(numbersTab).map(Integer::parseInt).toList();
+
         var negatives = numbers.stream().filter(num -> num < 0).map(Object::toString).collect(Collectors.joining(","));
         if (!negatives.isEmpty()) { throw new IllegalArgumentException("negatives not allowed: "+ negatives); }
-        return numbers;
+
+        return numbers.stream().filter(num -> num <= 1000).collect(Collectors.toList());
     }
 }
