@@ -1,67 +1,64 @@
 package fr.kata;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CalculatorApp {
 
+    private final static String DELIMITER_START = "//";
+    private final static String DELIMITER_END = "\n";
     private final static String DELIMITER_DEFAULT = "[,\n]";
-    private final List<Function<List<Integer>, List<Integer>>> filters = new ArrayList<>();
+    private final static String BRACKET_OPEN = "[";
+    private final static String BRACKET_CLOSE = "]";
 
-    public CalculatorApp() {
-        filters.add(filterNegatives());
-        filters.add(filterThousands());
-    }
+    private final static String ERROR_MSG_NEGATIVE_NOT_ALLOWED = "negatives not allowed: %s";
 
     public int add(String input) {
-        try {
-            Matcher matcher = Pattern.compile("(//(\\[.*]|.*)\n)?([\\d\\W\n]*)").matcher(input);
-            if (matcher.matches()) {
-                var delimiter = getDelimiter(matcher.group(2));
-                var inputNumbers = matcher.group(3);
-                var split = inputNumbers.split(delimiter);
-                var numbers = formatNumbers(split);
-                return numbers.stream().reduce(0, Integer::sum);
-            }
-        } catch (NumberFormatException ignored) {}
-        return 0;
-    }
-
-    private String getDelimiter(String delimiter) {
-        if (delimiter == null || delimiter.isEmpty()) {
-            return DELIMITER_DEFAULT;
+        if (input == null || input.isEmpty()) {
+            return 0;
         }
-        if (delimiter.startsWith("[")) {
-            if (delimiter.contains("][")) {
-                return delimiter.replaceAll("]\\[", "") + "{1,}";
+        var delimiter = getDelimiter(input);
+        var inputNumbers = getInputNumbers(input);
+        var split = inputNumbers.split(delimiter);
+        var numbers = formatNumbers(split);
+        validateNumbers(numbers);
+        return numbers.stream().reduce(0, Integer::sum);
+    }
+
+    private String getDelimiter(String input) {
+        if (input.startsWith(DELIMITER_START)) {
+            var start = input.indexOf(DELIMITER_START) + 2;
+            var end = input.indexOf(DELIMITER_END);
+            var delimiter = input.substring(start, end);
+            if (delimiter.startsWith(BRACKET_OPEN)) {
+                if (delimiter.contains(BRACKET_CLOSE + BRACKET_OPEN)) {
+                    return delimiter.replaceAll("]\\[", "") + "{1,}";
+                }
+                return delimiter + "{1,}";
             }
-            return delimiter + "{1,}";
+            return delimiter;
         }
-        return delimiter;
+        return DELIMITER_DEFAULT;
     }
 
-    private Function<List<Integer>, List<Integer>> filterNegatives() {
-        return numbers -> {
-            String negatives = numbers.stream().filter(num -> num < 0).map(Object::toString).collect(Collectors.joining(","));
-            if (!negatives.isEmpty()) { throw new IllegalArgumentException("negatives not allowed: " + negatives); }
-            return numbers;
-        };
+    private String getInputNumbers(String input) {
+        if (input.startsWith(DELIMITER_START)) {
+            var start = input.indexOf(DELIMITER_END) + 1;
+            return input.substring(start);
+        }
+        return input;
     }
 
-    private Function<List<Integer>, List<Integer>> filterThousands() {
-        return numbers -> numbers.stream().filter(num -> num <= 1000).collect(Collectors.toList());
+    private void validateNumbers(List<Integer> numbers) throws IllegalArgumentException {
+        var negatives = numbers.stream().filter(num -> num < 0).map(Object::toString).collect(Collectors.joining(","));
+        if (!negatives.isEmpty()) { throw new IllegalArgumentException(String.format(ERROR_MSG_NEGATIVE_NOT_ALLOWED, negatives)); }
     }
 
     private List<Integer> formatNumbers(String[] numbersTab) {
-        var numbers = Arrays.stream(numbersTab).map(Integer::parseInt).collect(Collectors.toList());
-        for (Function<List<Integer>, List<Integer>> filter : filters) {
-            numbers = filter.apply(numbers);
-        }
-        return numbers;
+        return Arrays.stream(numbersTab)
+            .map(Integer::parseInt)
+            .filter(number -> number <= 1000)
+            .collect(Collectors.toList());
     }
 }
